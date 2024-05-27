@@ -18,8 +18,5 @@ Este projeto foi desenvolvido como parte de uma aula para ensinar como consumir 
 git clone https://github.com/MonicaAlvesP/api-filmes.git
 cd api-filmes
 npm install
-npm install styled-components
-npm install axios
-code . && exit
+e abrir o projeto no vscode ou dua IDE de preferência!
 ```
-E após concluir o download, dê o comando `npm run dev` dentro do terminal do vscode, e clique no link, isso abrirá a pagina renderizada do site de filmes.
