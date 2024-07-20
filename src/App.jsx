@@ -1,26 +1,23 @@
-import Header from './components/Header/Header.jsx'
-import Main from './components/Main/Main.jsx'
-import { createGlobalStyle } from "styled-components"
-
-const GlobalStyle = createGlobalStyle`
-  *{
-    margin: 0;
-    padding:0;
-    box-sizing: border-box;
-  }
-  body{
-    font-family: "Cinzel Decorative", sans-serif;
-    font-style: normal;
-    font-weight: 100;
-  }
-`
+import { ThemeProvider, CssBaseline, Box } from '@mui/material';
+import theme from './theme';
+import Header from './components/Header/Header.jsx';
+import Main from './components/Main/Main.jsx';
 
 export default function App() {
   return (
-    <>
-      <GlobalStyle />
-      <Header />
-      <Main />
-    </>
-  )
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <Box
+        sx={{
+          backgroundColor: theme.palette.background.default,
+          minHeight: '100vh',
+          display: 'flex',
+          flexDirection: 'column',
+        }}
+      >
+        <Header />
+        <Main />
+      </Box>
+    </ThemeProvider>
+  );
 }

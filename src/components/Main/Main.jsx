@@ -1,50 +1,91 @@
-// API: interface de aplicação de programação é um serviço que permite consumir dados de um outro local, como: imagens, titulos, descrição.
-// AXIOS: é uma biblioteca que permite fazer a ligação entre o cliente (a gente) e o servidor (banco de dados) back.
-
-import React, { useState, useEffect } from "react";
-import axios from 'axios' // lib que vamos ultilizar para fazer a ponte do cliente para o servidor
-import * as S from './StyleMain'
-
+import { useState, useEffect } from 'react';
+import axios from 'axios';
+import { Typography, Grid, CircularProgress, Button, TextField } from "@mui/material";
 
 export default function Main() {
-    // Esse array [] vai guardar as informações que forem puxadas da API
-    const [data, setData] = useState([])
+  const [data, setData] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [searchTerm, setSearchTerm] = useState('');
+  const moviesPerPage = 9;
 
-    // ASYNC é uma função assincrona com a página, ou seja, não depende da página 
-    // para ser ativada, depende somente dos dados vindo da api
-    const getData = async () => {
-        const resp = await axios.get('https://api.sampleapis.com/movies/mystery')
-        setData(resp.data)
-
-
-        console.log(resp)
+  const getData = async () => {
+    try {
+      const resp = await axios.get('https://api.sampleapis.com/movies/mystery');
+      setData(resp.data);
+    } catch (error) {
+      console.log(error);
     }
+  };
 
-    // await: espere
-    // get: pegue/pegar
-    // axios: vai ser a nossa ponte
-    // espere o axios pegar os dados da API e guarde dentro da variável "resp"
-    // SetData é a forma de atualizar o estado (data)
-    // resp são as informações da api
-    // Pegue os dados da API e coloque no meu ESTADO
+  useEffect(() => {
+    getData();
+  }, []);
 
-    // O hook useEffect permite que executamos efeitos colaterais em nosso componente funcional
-    // neste caso queremos carregar os dados assim que o componente for montado
-    // o array vazio [] garante que o efeito seja executado apenas uma única vez
-    useEffect(() => {
-        getData();
-    }, []);
+  const handleNextPage = () => {
+    setCurrentPage((prevPage) => prevPage + 1);
+  };
 
-    return (
-        <S.Cinema>
-            {data.map((item) => (
+  const handlePreviousPage = () => {
+    setCurrentPage((prevPage) => Math.max(prevPage - 1, 1));
+  };
 
-                <S.Filmes>
-                    <S.titulos>{item.title}</S.titulos>
-                    <img src={item.posterURL} alt="Titulos da categoria Mystery" />
-                </S.Filmes>
+  const handleSearchChange = (event) => {
+    setSearchTerm(event.target.value);
+    setCurrentPage(1);
+  };
 
-            ))}
-        </S.Cinema>
-    )
+  const filteredMovies = data.filter((movie) =>
+    movie.title.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const startIndex = (currentPage - 1) * moviesPerPage;
+  const currentMovies = filteredMovies.slice(startIndex, startIndex + moviesPerPage);
+
+  return (
+    <main>
+      <TextField
+        label="Buscar filmes"
+        variant="outlined"
+        fullWidth
+        margin="normal"
+        value={searchTerm}
+        onChange={handleSearchChange}
+      />
+      <Grid container spacing={2}>
+        {data.length > 0 ? (
+          currentMovies.map((item, index) => (
+            <Grid item xs={12} sm={6} md={4} key={index}>
+              <Typography variant="h4">{item.title}</Typography>
+              <img src={item.posterURL} alt={item.title} />
+            </Grid>
+          ))
+        ) : (
+          <Grid item xs={12}>
+            <CircularProgress />
+          </Grid>
+        )}
+      </Grid>
+      <div style={{ display: 'flex', justifyContent: 'center', marginTop: '20px' }}>
+        <Button 
+          variant="contained" 
+          color="primary" 
+          onClick={handlePreviousPage} 
+          disabled={currentPage === 1}
+        >
+          Anterior
+        </Button>
+        <Typography variant="h6" style={{ margin: '0 20px' }}>
+          Página {currentPage}
+        </Typography>
+        <Button 
+          variant="contained" 
+          color="primary" 
+          onClick={handleNextPage} 
+          disabled={startIndex + moviesPerPage >= filteredMovies.length}
+        >
+          Próxima
+        </Button>
+      </div>
+    </main>
+  );
 }
